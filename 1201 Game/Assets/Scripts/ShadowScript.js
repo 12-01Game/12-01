@@ -36,6 +36,7 @@ private var verticesOrig : Vector3[];
 private var skew : Vector3[];
 private var skewAmount : float = 20.0;
 private var lightDistance : float = 10;
+private var isStatic : boolean = false;
 
 
 /*
@@ -79,13 +80,15 @@ function Update () {
  */
 function ActivateShadow() {
 
-	//Debug.Log("Activating the shadow...");
+	Debug.Log("Activating the shadow...");
 	
 	// Make a new shadow mesh
 	shadowMesh = new Mesh();
 	shadowMesh.name = "Shadow_Mesh_" + gameObject.name;
 
 	// Define vertices
+	// This is how it was done in the wrong plane...
+	/*
 	var tempX : float = objOriginX;
 	var tempY : float = objOriginY - (objWidth / 2);
 	var tempZ : float = objOriginZ - (objHeight / 2);
@@ -93,6 +96,16 @@ function ActivateShadow() {
 						   Vector3(tempX - objToWallDistance, tempY + heightScaleOffset, tempZ + objWidth),
 						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ +objWidth),
 						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ)];
+	*/
+	var tempX : float = objOriginX - (objWidth / 2);
+	var tempY : float = objOriginY - (objHeight / 2);
+	var tempZ : float = objOriginZ;
+	shadowMesh.vertices = [Vector3(tempX, tempY + heightScaleOffset, tempZ - objToWallDistance),
+						   Vector3(tempX + objWidth, tempY + heightScaleOffset, tempZ - objToWallDistance),
+						   Vector3(tempX + objWidth, tempY + objHeight + heightScaleOffset, tempZ - objToWallDistance),
+						   Vector3(tempX, tempY + objHeight + heightScaleOffset, tempZ - objToWallDistance)];
+						   
+	SetSkewVertices();	// Set skew vertices based on new vertices	   					   
 						   
 	// Define triangles
 	if (reverseTriWinding) {
@@ -142,13 +155,17 @@ function VerifyShadow() {
 /*
  *	RepositionShadow()
  *
- *	
+ *	Repositions the shadow in space.
+ *
+ *	NEVER CALL THIS FUNCTION DIRECTLY (use VerifyShadow() instead)
  */
 function RepositionShadow() {
 
-	//Debug.Log("Repositioning the shadow...");
+	// Debug.Log("Repositioning the shadow...");
 	
 	// Define vertices
+	// This is how it was done in the wrong plane...
+	/* 
 	var tempX : float = objOriginX;
 	var tempY : float = objOriginY - (objWidth / 2);
 	var tempZ : float = objOriginZ - (objHeight / 2);
@@ -156,6 +173,14 @@ function RepositionShadow() {
 						   Vector3(tempX - objToWallDistance, tempY + heightScaleOffset, tempZ + objWidth),
 						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ +objWidth),
 						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ)];
+	*/
+	var tempX : float = objOriginX - (objWidth / 2);
+	var tempY : float = objOriginY - (objHeight / 2);
+	var tempZ : float = objOriginZ;
+	shadowMesh.vertices = [Vector3(tempX, tempY + heightScaleOffset, tempZ - objToWallDistance),
+						   Vector3(tempX + objWidth, tempY + heightScaleOffset, tempZ - objToWallDistance),
+						   Vector3(tempX + objWidth, tempY + objHeight + heightScaleOffset, tempZ - objToWallDistance),
+						   Vector3(tempX, tempY + objHeight + heightScaleOffset, tempZ - objToWallDistance)];
 	
 	SetSkewVertices();	// Set skew vertices based on new vertices
 						   
@@ -181,9 +206,13 @@ function RepositionShadow() {
  *	Sets the vertices used for skewing
  */
 function SetSkewVertices(){
+
 	vertices = shadowMesh.vertices;
 	verticesOrig = shadowMesh.vertices;
-	if (skew == null) InitSkewVectors();
+	
+	if (skew == null) {
+		InitSkewVectors();
+	}
 }
 
 /*
@@ -192,13 +221,15 @@ function SetSkewVertices(){
  *	These vectors represent the skewing magnitudes
  */
 function InitSkewVectors(){
+
 	skew = shadowMesh.vertices;
 	var count : int = 0;
 	var root : int = Mathf.Sqrt(skew.length);	// this is currently designed for square planes
-	for(var i : int = 0; i < root; i++){
-		for(var j : int = 0; j < root; j++){
+	
+	for(var i : int = 0; i < root; i++) {
+		for(var j : int = 0; j < root; j++) {
 			var skw : float = i / skewAmount;
-			skew[count++] = Vector3(0, 0, skw);
+			skew[count++] = Vector3(skw, 0, 0);
 		}
 	}
 }
@@ -208,20 +239,20 @@ function InitSkewVectors(){
  *
  *	Skews the shadow in relation to the player's position 
  */
- private var isStatic : boolean = false;
 function SkewShadow(){
 	
 	// TODO : We will need to add an opacity fade-in to the shadow at lightDistance
 
-	var dist : float = verticesOrig[0].z - player.position.z;
-	if(dist > (-1 * lightDistance) && dist < lightDistance){
-		for (var p : int = 0; p < vertices.length; p++){
-			vertices[p] = Vector3(verticesOrig[p].x, verticesOrig[p].y, verticesOrig[p].z + skew[p].z * dist);
+	var dist : float = verticesOrig[0].x - player.position.x;
+	if (dist > (-1 * lightDistance) && dist < lightDistance) {
+		for (var p : int = 0; p < vertices.length; p++) {
+			vertices[p] = Vector3(verticesOrig[p].x + skew[p].x * dist, verticesOrig[p].y, verticesOrig[p].z);
 		}
 		isStatic = false;
-	}else{
-		if(!isStatic){
-			for (var pt : int = 0; pt < vertices.length; pt++){
+	} 
+	else {
+		if (!isStatic) {
+			for (var pt : int = 0; pt < vertices.length; pt++) {
 				vertices[pt] = Vector3(verticesOrig[pt].x, verticesOrig[pt].y, verticesOrig[pt].z);
 			}
 			isStatic = true;
