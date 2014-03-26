@@ -87,7 +87,7 @@ function ActivateShadow() {
 	shadowMesh.name = "Shadow_Mesh_" + gameObject.name;
 
 	// Define vertices
-	// This is how it was done in the wrong plane...
+	// This is how it was done in the wrong plane
 	/*
 	var tempX : float = objOriginX;
 	var tempY : float = objOriginY - (objWidth / 2);
@@ -164,7 +164,7 @@ function RepositionShadow() {
 	// Debug.Log("Repositioning the shadow...");
 	
 	// Define vertices
-	// This is how it was done in the wrong plane...
+	// This is how it was done in the wrong plane
 	/* 
 	var tempX : float = objOriginX;
 	var tempY : float = objOriginY - (objWidth / 2);
