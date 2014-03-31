@@ -264,8 +264,8 @@ function isFacing(){
 	}
 }
 function OnTriggerEnter (other : Collider) {
-		SkewShadow();
+	SkewShadow();
 }
 function OnTriggerStay (other : Collider) {
-		SkewShadow();
+	SkewShadow();
 }
