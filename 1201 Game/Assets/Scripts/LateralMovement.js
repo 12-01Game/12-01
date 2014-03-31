@@ -28,7 +28,6 @@ function Start () {
 	
 	canJump = true;
 	timeSinceLastJump = 10;
-	
 }
 
 function Update () {

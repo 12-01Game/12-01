@@ -18,7 +18,6 @@ function Start () {
 	
 	canJump = true;
 	timeSinceLastJump = 10;
-	
 }
 function Update () {
 	timeSinceLastJump += dt;
@@ -32,7 +31,6 @@ function Update () {
 		canJump = false;
 		timeSinceLastJump = 0;
 	}
-	
 }
 function OnCollisionEnter(collision : Collision) {
 	if((collision.gameObject.name=="Floor uved2") && (timeSinceLastJump > jumpDelay)) {
