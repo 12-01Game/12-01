@@ -9,9 +9,14 @@
 
 #pragma strict
  
+// Variable Settings
 var objToWallDistance : float = 0;		// Stores how far away the GameObject's back edge is from the wall
 var scalingWidthVar : float = 1;		// Stores how the shadow should scale in size with respect to the size of the GameObject
 var scalingHeightVar : float = 1;		// Stores how the shadow should scale in size with respect to the size of the GameObject
+
+var skewAmount : float = 20.0;			// The skewing factor for shadows (+more -less)
+var triggerDistance : float = 10.0;		// The distance at which Shadow Skewing is triggered
+
 var shadowTexture : Material;			// Stores the texture for the shadow
 var reverseTriWinding : boolean;		// This prevents the "backfacing" problem
 var player : Transform;					// Stores the player object to detect distance
@@ -34,10 +39,12 @@ private var shadow : GameObject;
 private var vertices : Vector3[];
 private var verticesOrig : Vector3[];
 private var skew : Vector3[];
-private var skewAmount : float = 20.0;
-private var lightDistance : float = 10;
-private var isStatic : boolean = false;
+private var dist : float;
 
+// Environment variables
+private var levelHeight : float = 30.0;
+private var levelDepth : float = 50.0;
+private var left : Vector3;
 
 /*
  *	Start()
@@ -47,17 +54,22 @@ private var isStatic : boolean = false;
 function Start () {
 	
 	// Initialize GameObject properties
-	objWidth = collider.bounds.size.z;
-	objHeight = collider.bounds.size.y;
-	objOriginX = collider.transform.position.x;
-	objOriginY = collider.transform.position.y;
-	objOriginZ = collider.transform.position.z;
+	objWidth = renderer.bounds.size.z;
+	objHeight = renderer.bounds.size.y;
+	objOriginX = renderer.transform.position.x;
+	objOriginY = renderer.transform.position.y;
+	objOriginZ = renderer.transform.position.z;
 	
 	// Do some scaling
 	heightScaleOffset = ((objHeight * scalingHeightVar) - objHeight) / 2;
 	objWidth = objWidth * scalingWidthVar;
 	objHeight = objHeight * scalingWidthVar;
 	
+	// we may just want to create prefabs and set these values there
+	this.GetComponent(BoxCollider).size = new Vector3(100, levelHeight, levelDepth);
+	
+	left = transform.TransformDirection(Vector3.back);	// player is moving left when facing back
+
 	// Go
 	ActivateShadow();
 }
@@ -69,7 +81,6 @@ function Start () {
  */
 function Update () {
 	VerifyShadow();		// Verify the shadow's location based on its parent object
-	SkewShadow();		// Skew the shadow based on the player's locations
 }
 
 /*
@@ -87,16 +98,6 @@ function ActivateShadow() {
 	shadowMesh.name = "Shadow_Mesh_" + gameObject.name;
 
 	// Define vertices
-	// This is how it was done in the wrong plane...
-	/*
-	var tempX : float = objOriginX;
-	var tempY : float = objOriginY - (objWidth / 2);
-	var tempZ : float = objOriginZ - (objHeight / 2);
-	shadowMesh.vertices = [Vector3(tempX - objToWallDistance, tempY + heightScaleOffset, tempZ),
-						   Vector3(tempX - objToWallDistance, tempY + heightScaleOffset, tempZ + objWidth),
-						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ +objWidth),
-						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ)];
-	*/
 	var tempX : float = objOriginX - (objWidth / 2);
 	var tempY : float = objOriginY - (objHeight / 2);
 	var tempZ : float = objOriginZ;
@@ -134,9 +135,9 @@ function VerifyShadow() {
 	var isInvalid : boolean = false;
 	
 	// If the position has changed, invalidate the shadow
-	var newX : float = collider.transform.position.x;
-	var newY : float = collider.transform.position.y;
-	var newZ : float = collider.transform.position.z;
+	var newX : float = renderer.transform.position.x;
+	var newY : float = renderer.transform.position.y;
+	var newZ : float = renderer.transform.position.z;
 	if (!newX.Equals(objOriginX) || !newY.Equals(objOriginY) || !newZ.Equals(objOriginZ)) {
 		
 		// Respecify fields and invalidate
@@ -160,20 +161,8 @@ function VerifyShadow() {
  *	NEVER CALL THIS FUNCTION DIRECTLY (use VerifyShadow() instead)
  */
 function RepositionShadow() {
-
-	// Debug.Log("Repositioning the shadow...");
 	
 	// Define vertices
-	// This is how it was done in the wrong plane...
-	/* 
-	var tempX : float = objOriginX;
-	var tempY : float = objOriginY - (objWidth / 2);
-	var tempZ : float = objOriginZ - (objHeight / 2);
-	shadowMesh.vertices = [Vector3(tempX - objToWallDistance, tempY + heightScaleOffset, tempZ),
-						   Vector3(tempX - objToWallDistance, tempY + heightScaleOffset, tempZ + objWidth),
-						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ +objWidth),
-						   Vector3(tempX - objToWallDistance, tempY + objHeight + heightScaleOffset, tempZ)];
-	*/
 	var tempX : float = objOriginX - (objWidth / 2);
 	var tempY : float = objOriginY - (objHeight / 2);
 	var tempZ : float = objOriginZ;
@@ -241,22 +230,42 @@ function InitSkewVectors(){
  */
 function SkewShadow(){
 	
-	// TODO : We will need to add an opacity fade-in to the shadow at lightDistance
-
-	var dist : float = verticesOrig[0].x - player.position.x;
-	if (dist > (-1 * lightDistance) && dist < lightDistance) {
-		for (var p : int = 0; p < vertices.length; p++) {
-			vertices[p] = Vector3(verticesOrig[p].x + skew[p].x * dist, verticesOrig[p].y, verticesOrig[p].z);
-		}
-		isStatic = false;
-	} 
-	else {
-		if (!isStatic) {
-			for (var pt : int = 0; pt < vertices.length; pt++) {
-				vertices[pt] = Vector3(verticesOrig[pt].x, verticesOrig[pt].y, verticesOrig[pt].z);
+	// TODO : We will need to add an opacity fade-in to the shadow at triggerDistance
+	dist = verticesOrig[0].x - player.position.x;
+	
+	if(isFacing()){
+		if (dist > (-1 * triggerDistance) && dist < triggerDistance) {
+			for (var p : int = 0; p < vertices.length; p++) {
+				vertices[p] = Vector3(verticesOrig[p].x + dist/10 + skew[p].x * dist, verticesOrig[p].y, verticesOrig[p].z);
 			}
-			isStatic = true;
-		}
+		} 
+	}
+	else {
+		// TODO: Hide shadow (with very quick Opacity fade-out?)
+
 	}
 	shadowMesh.vertices = vertices;
+}
+function isFacing(){
+	var vector : Vector3 = player.forward;
+	if(vector.Equals(left)){ 	// facing left
+		if(dist < 0){ 	// player is on the left of the object, NOT FACING
+			return false;
+		}else{			// player is on the right of the object, IS FACING
+			return true;
+		}
+	}else{ 	// facing right
+		if(dist < 0){ 	// player is on the left of the object, IS FACING
+			return true;
+		}else{			// player is on the right of the object, NOT FACING
+			return false;
+		}
+	
+	}
+}
+function OnTriggerEnter (other : Collider) {
+		SkewShadow();
+}
+function OnTriggerStay (other : Collider) {
+		SkewShadow();
 }
