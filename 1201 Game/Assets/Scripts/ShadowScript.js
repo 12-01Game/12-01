@@ -91,7 +91,7 @@ function Update () {
  */
 function ActivateShadow() {
 
-	Debug.Log("Activating the shadow...");
+	// Debug.Log("Activating the shadow...");
 	
 	// Make a new shadow mesh
 	shadowMesh = new Mesh();
