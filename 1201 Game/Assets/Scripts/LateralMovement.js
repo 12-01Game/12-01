@@ -2,8 +2,8 @@
 
 var moveSpeed : float;
 var dt : float;
-var forward : Vector3;
-var backward : Vector3;
+var fwd : Vector3;
+var bwd : Vector3;
 
 var jumpForce : float;
 var jumpDelay : float;
@@ -20,8 +20,8 @@ var look_right : boolean;
 function Start () {
 	moveSpeed = 3.0;
 	dt = Time.deltaTime;
-	forward = transform.TransformDirection(Vector3.left);
-	backward = transform.TransformDirection(Vector3.right);
+	fwd = transform.TransformDirection(Vector3.left);
+	bwd = transform.TransformDirection(Vector3.right);
 	
 	jumpForce = 5;
 	jumpDelay = 1;
@@ -37,14 +37,14 @@ function Update () {
 		transform.rotation.y = 180;
 		look_left = true;
 		look_right = false;
-		move = moveSpeed * dt * backward * Input.GetAxis("Horizontal");
+		move = moveSpeed * dt * bwd * Input.GetAxis("Horizontal");
 		transform.Translate(move);
 	}
 	else if (Input.GetKey(KeyCode.RightArrow)) {
 		transform.rotation.y = 0;
 		look_left = false;
 		look_right = true;
-		move = moveSpeed * dt * forward * Input.GetAxis("Horizontal");
+		move = moveSpeed * dt * fwd * Input.GetAxis("Horizontal");
 		transform.Translate(move);
 	}
 	

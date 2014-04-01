@@ -258,11 +258,14 @@ function SkewShadow() {
  */
 function isFacing() {
 
-	// This solution doesnt work
-	var vector : Vector3 = player.forward;
+	var vector : Vector3 = player.right;
+	
+	Debug.Log(vector);
 	
 	// Facing left
-	if (vector.Equals(left)) {
+	if (vector == Vector3(-1,0,0)) {
+		
+		Debug.Log("Facing left!");
 	
 		if (dist < 0){ 	// player is on the left of the object, NOT FACING
 			return false;
