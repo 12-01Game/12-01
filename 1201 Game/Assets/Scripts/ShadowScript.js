@@ -14,8 +14,8 @@ var objToWallDistance : float = 0;		// Stores how far away the GameObject's back
 var scalingWidthVar : float = 1;		// Stores how the shadow should scale in size with respect to the size of the GameObject
 var scalingHeightVar : float = 1;		// Stores how the shadow should scale in size with respect to the size of the GameObject
 
-var skewAmount : float = 20.0;			// The skewing factor for shadows (+more -less)
-var triggerDistance : float = 10.0;		// The distance at which Shadow Skewing is triggered
+var skewAmount : float = 25.0;			// The skewing factor for shadows (+more -less)
+var triggerDistance : float = 20.0;		// The distance at which Shadow Skewing is triggered
 
 var shadowTexture : Material;			// Stores the texture for the shadow
 var reverseTriWinding : boolean;		// This prevents the "backfacing" problem
@@ -34,6 +34,7 @@ private var objOriginZ : float;		// Stores where the GameObject is in space
 // Shadow properties
 private var shadowMesh : Mesh;
 private var shadow : GameObject;
+private var shadowCollider : BoxCollider;
 
 // Skewing variables
 private var vertices : Vector3[];
@@ -65,8 +66,11 @@ function Start () {
 	objWidth = objWidth * scalingWidthVar;
 	objHeight = objHeight * scalingWidthVar;
 	
-	// we may just want to create prefabs and set these values there
-	this.GetComponent(BoxCollider).size = new Vector3(100, levelHeight, levelDepth);
+	// Make our own collider
+	shadowCollider = gameObject.AddComponent("BoxCollider");
+	shadowCollider.size = new Vector3(100, levelHeight, levelDepth);
+	// Use our triggers
+	shadowCollider.isTrigger = true;
 	
 	left = transform.TransformDirection(Vector3.back);	// player is moving left when facing back
 
@@ -228,7 +232,7 @@ function InitSkewVectors(){
  *
  *	Skews the shadow in relation to the player's position 
  */
-function SkewShadow(){
+function SkewShadow() {
 	
 	// TODO : We will need to add an opacity fade-in to the shadow at triggerDistance
 	dist = verticesOrig[0].x - player.position.x;
@@ -246,23 +250,40 @@ function SkewShadow(){
 	}
 	shadowMesh.vertices = vertices;
 }
-function isFacing(){
+
+/*
+ *	isFacing()
+ *
+ *	Checks to see if the player is facing towards this object
+ */
+function isFacing() {
+
+	// This solution doesnt work
 	var vector : Vector3 = player.forward;
-	if(vector.Equals(left)){ 	// facing left
-		if(dist < 0){ 	// player is on the left of the object, NOT FACING
+	
+	// Facing left
+	if (vector.Equals(left)) {
+	
+		if (dist < 0){ 	// player is on the left of the object, NOT FACING
 			return false;
-		}else{			// player is on the right of the object, IS FACING
+		} else{			// player is on the right of the object, IS FACING
 			return true;
 		}
-	}else{ 	// facing right
-		if(dist < 0){ 	// player is on the left of the object, IS FACING
+	} 
+	
+	// Facing right
+	else {
+	
+		if (dist < 0){ 	// player is on the left of the object, IS FACING
 			return true;
-		}else{			// player is on the right of the object, NOT FACING
+		} else {			// player is on the right of the object, NOT FACING
 			return false;
 		}
 	
 	}
+	
 }
+
 function OnTriggerEnter (other : Collider) {
 	SkewShadow();
 }
