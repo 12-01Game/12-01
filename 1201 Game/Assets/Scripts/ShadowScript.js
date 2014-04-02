@@ -4,7 +4,7 @@
  *	Version 1.0
  *	Coded with <3 by Jonathan Ballands && Wil Collins
  *
- *	Written for the 12:01 video game for CS 4644
+ *	Written for the 12:01 video game
  */
 
 #pragma strict
@@ -21,7 +21,12 @@ var shadowTexture : Material;			// Stores the texture for the shadow
 var reverseTriWinding : boolean;		// This prevents the "backfacing" problem
 var player : Transform;					// Stores the player object to detect distance
 
+var createShadowOnStart : boolean = false;	// When true, the shadow will be created when the scene starts. Otherwise, you will have to call
+											// createShadow() explicitly to make the shadow.
+
 private var heightScaleOffset : float;		// This is here so that scaled shadows still line up against the wall!
+
+private var hasLogic : boolean = true;
 
 // Object properties
 private var objWidth : float;		// Stores the GameObject's width
@@ -53,7 +58,7 @@ private var left : Vector3;
  *	Called as the object gets initialized.
  */
 function Start () {
-	
+
 	// Initialize GameObject properties
 	objWidth = renderer.bounds.size.z;
 	objHeight = renderer.bounds.size.y;
@@ -75,7 +80,10 @@ function Start () {
 	left = transform.TransformDirection(Vector3.back);	// player is moving left when facing back
 
 	// Go
-	ActivateShadow();
+	if (createShadowOnStart) {
+		hasLogic = true;
+		ActivateShadow();
+	}
 }
 
 /*
@@ -84,7 +92,37 @@ function Start () {
  *	Called as the object updates in realtime.
  */
 function Update () {
-	VerifyShadow();		// Verify the shadow's location based on its parent object
+	if (hasLogic) {
+		VerifyShadow();		// Verify the shadow's location based on its parent object
+	}
+}
+
+/*
+ *	CreateShadow()
+ *
+ *	Explicitly tells the ShadowScript to begin generating collidable shadows for this object.
+ */
+function CreateShadow() {
+	if (!hasLogic) {
+		hasLogic = true;
+		ActivateShadow();
+	}
+}
+
+/*
+ *	RemoveShadow()
+ *
+ *	Explicitly tells the ShadowScript to remove collidable shadows for this object.
+ */
+function RemoveShadow() {
+	if (hasLogic) {
+		hasLogic = false;
+		
+		// Remove shadow
+		shadowMesh = null;
+		shadow = null;
+		shadowCollider = null;
+	}
 }
 
 /*
@@ -95,8 +133,6 @@ function Update () {
  */
 function ActivateShadow() {
 
-	// Debug.Log("Activating the shadow...");
-	
 	// Make a new shadow mesh
 	shadowMesh = new Mesh();
 	shadowMesh.name = "Shadow_Mesh_" + gameObject.name;
@@ -264,12 +300,10 @@ function isFacing() {
 	
 	// Facing left
 	if (vector == Vector3(-1,0,0)) {
-		
-		Debug.Log("Facing left!");
 	
-		if (dist < 0){ 	// player is on the left of the object, NOT FACING
+		if (dist < 0){ 		// player is on the left of the object, NOT FACING
 			return false;
-		} else{			// player is on the right of the object, IS FACING
+		} else {			// player is on the right of the object, IS FACING
 			return true;
 		}
 	} 
@@ -277,7 +311,7 @@ function isFacing() {
 	// Facing right
 	else {
 	
-		if (dist < 0){ 	// player is on the left of the object, IS FACING
+		if (dist < 0) { 		// player is on the left of the object, IS FACING
 			return true;
 		} else {			// player is on the right of the object, NOT FACING
 			return false;
@@ -286,6 +320,8 @@ function isFacing() {
 	}
 	
 }
+
+/* Triggers */
 
 function OnTriggerEnter (other : Collider) {
 	SkewShadow();
