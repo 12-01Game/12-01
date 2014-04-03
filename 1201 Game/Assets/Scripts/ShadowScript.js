@@ -161,7 +161,9 @@ function ActivateShadow() {
 	
 	// Create the shadow plane
 	shadow = new GameObject("Shadow_Object_" + gameObject.name, MeshRenderer, MeshFilter, MeshCollider);
-	shadow.GetComponent(MeshFilter).mesh = shadowMesh;
+	
+	var mc : MeshCollider = shadow.AddComponent("MeshCollider");
+	mc.sharedMesh = shadowMesh;
 	shadow.renderer.material = shadowTexture;
 }
 
