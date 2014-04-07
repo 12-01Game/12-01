@@ -1,10 +1,12 @@
 ﻿/*
  *	ShadowScript.js
  *
+ *	The engine that generates interactive shadows in the game world.
+ *
  *	Version 1.0
  *	Coded with <3 by Jonathan Ballands && Wil Collins
  *
- *	Written for the 12:01 video game
+ *	(C)2014 All Rights Reserved.
  */
 
 #pragma strict
@@ -39,7 +41,7 @@ private var objOriginZ : float;		// Stores where the GameObject is in space
 // Shadow properties
 private var shadowMesh : Mesh;
 private var shadow : GameObject;
-private var shadowCollider : BoxCollider;
+private var skewProximityCollider : BoxCollider;
 
 // Skewing variables
 private var vertices : Vector3[];
@@ -69,13 +71,7 @@ function Start () {
 	// Do some scaling
 	heightScaleOffset = ((objHeight * scalingHeightVar) - objHeight) / 2;
 	objWidth = objWidth * scalingWidthVar;
-	objHeight = objHeight * scalingWidthVar;
-	
-	// Make our own collider
-	shadowCollider = gameObject.AddComponent("BoxCollider");
-	shadowCollider.size = new Vector3(100, levelHeight, levelDepth);
-	// Use our triggers
-	shadowCollider.isTrigger = true;
+	objHeight = objHeight * scalingWidthVar;	
 	
 	left = transform.TransformDirection(Vector3.back);	// player is moving left when facing back
 
@@ -121,7 +117,7 @@ function RemoveShadow() {
 		// Remove shadow
 		shadowMesh = null;
 		shadow = null;
-		shadowCollider = null;
+		skewProximityCollider = null;
 	}
 }
 
@@ -162,9 +158,18 @@ function ActivateShadow() {
 	// Create the shadow plane
 	shadow = new GameObject("Shadow_Object_" + gameObject.name, MeshRenderer, MeshFilter, MeshCollider);
 	
-	var mc : MeshCollider = shadow.AddComponent("MeshCollider");
-	mc.sharedMesh = shadowMesh;
+	// Add a collider to the object so that it can detect when to skew
+	skewProximityCollider = gameObject.AddComponent("BoxCollider");
+	skewProximityCollider.size = new Vector3(100, levelHeight, levelDepth);
+	skewProximityCollider.isTrigger = true;
+	
+	// Add a collider to the shadow so that Hank can touch it
+	var shadowCollider : MeshCollider = shadow.AddComponent("MeshCollider");
+	shadowCollider.sharedMesh = shadowMesh;
 	shadow.renderer.material = shadowTexture;
+	
+	var meshFilter : MeshFilter = shadow.GetComponent("MeshFilter");
+	meshFilter.sharedMesh = shadowMesh;
 }
 
 /*
@@ -297,9 +302,7 @@ function SkewShadow() {
 function isFacing() {
 
 	var vector : Vector3 = player.right;
-	
-	Debug.Log(vector);
-	
+
 	// Facing left
 	if (vector == Vector3(-1,0,0)) {
 	
@@ -325,9 +328,12 @@ function isFacing() {
 
 /* Triggers */
 
-function OnTriggerEnter (other : Collider) {
+function OnTriggerEnter (c : Collider) {
 	SkewShadow();
 }
-function OnTriggerStay (other : Collider) {
+function OnTriggerStay (c : Collider) {
 	SkewShadow();
 }
+function OnTriggerExit (c : Collider) {
+	// Nothing to do...
+} 
