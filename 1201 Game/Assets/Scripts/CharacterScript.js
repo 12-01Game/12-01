@@ -1,7 +1,7 @@
 ﻿/*
  *	CharacterScript.js
  *
- *	The script that causes a character to interact with the world.
+ *	A script that causes characters in 12:01 to interact with the game world.
  *
  *	Version 1.0
  *	Coded with <3 by Jonathan Ballands
@@ -14,7 +14,7 @@
 
 var jumpForce					: float = 10.0f;	// The amount of force that the character jumps with
 var speed						: float = 6.0f;		// The speed at which this character moves
-var rotateSpeed					: float = 150.0f;	// The speed at which this character rotates
+var rotationSpeed				: float = 10.0f;	// The speed at which this character rotates
 
 var canRotate					: boolean = true;	// Set this to true if you want the character to rotate
 var canJump						: boolean = true;	// Set this to true if you want the character to jump
@@ -28,7 +28,7 @@ private var savedXMotion		: float = 0;					// When the character is airborne, us
 private var accelOfGravity		: float = .981;					// PHYSICS, BITCHES
 private var fallFrames			: int = 1;						// How long has this character been falling?
 
-private var shouldFaceAngle		: float = 0;
+private var shouldFaceAngle		: float = 180;
 private var currFaceAngle		: float = 0;
 
 /*
@@ -48,6 +48,12 @@ function Awake() {
  */
 function Update () {
 	
+	Debug.Log(transform.right);
+
+	// Use slerp to provide smooth character rotation
+	var sfa = Quaternion.Euler(Vector3(0, shouldFaceAngle, 0));
+	transform.rotation = Quaternion.Slerp(transform.rotation, sfa, rotationSpeed * Time.deltaTime);
+	
 	var xMotion = 0;
 	var yMotion = 0;
 
@@ -64,12 +70,12 @@ function Update () {
 		// No Y-motion
 		yMotion = 0;
 		
-		// Set the angle to turn to
+		// Set the angle to turn to, if needed
 		if (xMotion > 0) {
-			shouldFaceAngle = 0;
+			shouldFaceAngle = 180;
 		}
 		else if (xMotion < 0) {
-			shouldFaceAngle = 180;
+			shouldFaceAngle = 0;
 		}
 	}
 	else {
@@ -83,10 +89,10 @@ function Update () {
 	}
 	
 	// Determine rotation
-	if (currFaceAngle != shouldFaceAngle) {
+	/*if (currFaceAngle != shouldFaceAngle) {
 		transform.Rotate(0, rotateSpeed * Time.deltaTime, 0);
 		currFaceAngle += rotateSpeed * Time.deltaTime;
-	}
+	}*/
 		
 	controller.Move(Vector3(xMotion * Time.deltaTime, yMotion * Time.deltaTime, 0));
 }
