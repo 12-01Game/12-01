@@ -48,7 +48,7 @@ function Awake() {
  */
 function Update () {
 	
-	Debug.Log(transform.right);
+	//Debug.Log(transform.right);
 
 	// Use slerp to provide smooth character rotation
 	var sfa = Quaternion.Euler(Vector3(0, shouldFaceAngle, 0));
