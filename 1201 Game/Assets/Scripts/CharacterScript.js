@@ -19,13 +19,15 @@ var rotationSpeed				: float = 10.0f;	// The speed at which this character rotat
 var canRotate					: boolean = true;	// Set this to true if you want the character to rotate
 var canJump						: boolean = true;	// Set this to true if you want the character to jump
 
+var gravity						: float = .08;		// Control how much gravity this character is exposed to
+
 private var controller			: CharacterController;			// The CharacterController component that must be attached to this character
 
 private var faceVector			: Vector3 = Vector3.zero;		// The vector the character moves on
 private var downVector			: Vector3 = Vector3.down;		// The vector the character falls on
 private var savedXMotion		: float = 0;					// When the character is airborne, use this value to launch the character in this direction
-
-private var accelOfGravity		: float = .981;					// PHYSICS, BITCHES
+private var savedYMotion		: float = 0;					// When the character is airborne, use this value to figure out how much the player should 
+																// fall by
 private var fallFrames			: int = 1;						// How long has this character been falling?
 
 private var shouldFaceAngle		: float = 180;
@@ -47,17 +49,22 @@ function Awake() {
  *	Called as this character updates.
  */
 function Update () {
-	
-	//Debug.Log(transform.right);
 
-	// Use slerp to provide smooth character rotation
-	var sfa = Quaternion.Euler(Vector3(0, shouldFaceAngle, 0));
-	transform.rotation = Quaternion.Slerp(transform.rotation, sfa, rotationSpeed * Time.deltaTime);
+	// If the character can rotate, rotate smoothly (Sam)
+	if (canRotate) {
+		// Use slerp to provide smooth character rotation
+		var sfa = Quaternion.Euler(Vector3(0, shouldFaceAngle, 0));
+		transform.rotation = Quaternion.Slerp(transform.rotation, sfa, rotationSpeed * Time.deltaTime);
+	}
+	// Otherwise, don't rotate smoothly at all (Hank)
+	else {
+		transform.rotation.y = shouldFaceAngle;
+	}
 	
 	var xMotion = 0;
 	var yMotion = 0;
 
-	// If the controller is grounded...
+	// Grounded...
 	if (controller.isGrounded) {
 	
 		// Reset gravity acceleration
@@ -78,21 +85,25 @@ function Update () {
 			shouldFaceAngle = 0;
 		}
 	}
+	
+	// Jumping...
+	if (controller.isGrounded && Input.GetAxis("Jump") && canJump) {
+		yMotion = jumpForce;
+		savedYMotion = yMotion;
+	}
+	
+	// Falling...
 	else {
 		
 		// Simulate acceleration by multiplying by the number of frames the character has been airborne for
-		yMotion = accelOfGravity * fallFrames * -1;
+		yMotion = savedYMotion - (gravity * fallFrames);
+		savedYMotion = yMotion;
 		fallFrames++;
 		
 		// Use the X-motion right before the character got airborne
 		xMotion = savedXMotion;
 	}
-	
-	// Determine rotation
-	/*if (currFaceAngle != shouldFaceAngle) {
-		transform.Rotate(0, rotateSpeed * Time.deltaTime, 0);
-		currFaceAngle += rotateSpeed * Time.deltaTime;
-	}*/
-		
+			
 	controller.Move(Vector3(xMotion * Time.deltaTime, yMotion * Time.deltaTime, 0));
+	
 }
