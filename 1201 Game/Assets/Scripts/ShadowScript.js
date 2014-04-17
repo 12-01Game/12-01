@@ -18,12 +18,12 @@ var nearestLight				: Transform;		// Nearest Light gameobject (if one exists) th
 
 var scalingWidthVar 			: float 	= 1.0;			// shadow width scale in respect to gameobject
 var scalingHeightVar 			: float 	= 1.0;			// shadow height scale in respect to gameobject
-var triggerDistance 			: float 	= 60.0;			// distance at which Shadow Skewing is triggered
 
 // Environment settings
-private final var WALL_NAME 	: String 	= "BackWall";	// Name identifier for the back wall to calculate objDistanceToWall
-private final var SAM_NAME 		: String 	= "Test Sam";	// Name indentifier for the player to calculate distance from obj
-private final var SHADOW_OFFSET	: float		= 0.01;			// distance shadow is offset from plane
+private final var WALL_NAME 		: String 	= "BackWall";	// Name identifier for the back wall to calculate objDistanceToWall
+private final var SAM_NAME 			: String 	= "Test Sam";	// Name indentifier for the player to calculate distance from obj
+private final var SHADOW_OFFSET		: float		= 0.01;			// distance shadow is offset from plane
+private final var triggerDistance 	: float 	= 10.0;			// distance at which Shadow Skewing is triggered
 
 // Object properties
 private var objWidth 			: float;			// GameObject's width
