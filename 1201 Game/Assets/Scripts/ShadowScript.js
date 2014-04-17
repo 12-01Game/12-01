@@ -360,20 +360,20 @@ function castShadow(x: float, z: float){
 		if(!isLifted){	   
 			shadowMeshV.vertices = 
 				[Vector3(xRight - mFar * objToWallDistance, yFloor, zBack + objToWallDistance),
-				   Vector3(xLeft + objWidth/2 - mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
-				   Vector3(xLeft + objWidth/2 - mNear * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance),
+				   Vector3(xLeft + objWidth - mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
+				   Vector3(xLeft + objWidth - mNear * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance),
 				   Vector3(xRight - mFar * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance)];
 						   
 			shadowMeshH.vertices = 
 				[Vector3(xRight - mFar * objToWallDistance, yFloor, zBack + objToWallDistance),
-				   Vector3(xLeft + objWidth/2 - mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
+				   Vector3(xLeft + objWidth - mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
 				   Vector3(xLeft, yFloor, zFront),
 				   Vector3(xRight, yFloor, zBack)];
 		}else{
 			shadowMeshV.vertices = 
 				[Vector3(xRight, objOriginY + objHeight, zBack + objToWallDistance),
 				   Vector3(xLeft, objOriginY + objHeight, zBack + objToWallDistance),
-				   Vector3(xLeft + objWidth/2 - mNear * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance),
+				   Vector3(xLeft + objWidth - mNear * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance),
 				   Vector3(xRight - mFar * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance)];
 		}
 	}else if (dist < objWidth / -2){	// on the left side of gameobject
@@ -390,13 +390,13 @@ function castShadow(x: float, z: float){
 		if(!isLifted){
 		
 			shadowMeshV.vertices = 
-				[Vector3(xRight - objWidth/2 + mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
+				[Vector3(xRight - objWidth + mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
 				   Vector3(xLeft + mFar * objToWallDistance, yFloor, zBack + objToWallDistance),
 				   Vector3(xLeft + mFar * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance),
-				   Vector3(xRight - objWidth/2 + mNear * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance)];
+				   Vector3(xRight - objWidth + mNear * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance)];
 			
 			shadowMeshH.vertices = 
-				[Vector3(xRight - objWidth/2 + mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
+				[Vector3(xRight - objWidth + mNear * objToWallDistance, yFloor, zBack + objToWallDistance),
 				   Vector3(xLeft + mFar * objToWallDistance, yFloor, zBack + objToWallDistance),
 				   Vector3(xLeft, yFloor, zBack),
 				   Vector3(xRight, yFloor, zFront)];
@@ -405,7 +405,7 @@ function castShadow(x: float, z: float){
 				[Vector3(xRight, objOriginY + objHeight, zBack + objToWallDistance),
 				   Vector3(xLeft, objOriginY + objHeight, zBack + objToWallDistance),
 				   Vector3(xLeft + mFar * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance),
-				   Vector3(xRight - objWidth/2 + mNear * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance)];
+				   Vector3(xRight - objWidth + mNear * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance)];
 		}
 	}else {	// within gameobject bounds
 		distX = Mathf.Abs(x - xRight);
@@ -424,17 +424,17 @@ function castShadow(x: float, z: float){
 					[Vector3(xRight, objOriginY + objHeight, zBack + objToWallDistance),
 					   Vector3(xLeft, objOriginY + objHeight, zBack + objToWallDistance),
 					   Vector3(Mathf.Max(xLeft, xLeft - mLeft * objToWallDistance), objOriginY + 1.5 * objHeight, zBack + objToWallDistance),
-					   Vector3(xRight - objWidth/2 + mRight * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance)];
+					   Vector3(xRight - objWidth + mRight * objDepth / 2, objOriginY + 1.5 * objHeight, zBack + objToWallDistance)];
 			
 			}else{
 				shadowMeshV.vertices = 
-					[Vector3(xRight - objWidth/2  + mRight * objToWallDistance, yFloor, zBack + objToWallDistance),
+					[Vector3(xRight - objWidth  + mRight * objToWallDistance, yFloor, zBack + objToWallDistance),
 					   Vector3(Mathf.Max(xLeft, xLeft - mLeft * objToWallDistance), yFloor, zBack + objToWallDistance),
 					   Vector3(Mathf.Max(xLeft, xLeft - mLeft * objToWallDistance), yFloor + objHeight, zBack + objToWallDistance),
-					   Vector3(xRight - objWidth/2 + mRight * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance)];
+					   Vector3(xRight - objWidth + mRight * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance)];
 				
 				shadowMeshH.vertices = 
-					[Vector3(xRight - objWidth/2 + mRight * objToWallDistance, yFloor, zBack + objToWallDistance),
+					[Vector3(xRight - objWidth + mRight * objToWallDistance, yFloor, zBack + objToWallDistance),
 					   Vector3(Mathf.Max(xLeft, xLeft - mLeft * objToWallDistance), yFloor, zBack + objToWallDistance),
 					   Vector3(xLeft, yFloor, zFront),
 					   Vector3(xRight, yFloor, zFront)];
@@ -446,19 +446,19 @@ function castShadow(x: float, z: float){
 				shadowMeshV.vertices = 
 					[Vector3(xRight, objOriginY + objHeight, zBack + objToWallDistance),
 					   Vector3(xLeft, objOriginY + objHeight, zBack + objToWallDistance),
-					   Vector3(xLeft + objWidth/2 - mLeft * objToWallDistance, objOriginY + 1.5 * objHeight, zBack + objToWallDistance),
+					   Vector3(xLeft + objWidth - mLeft * objToWallDistance, objOriginY + 1.5 * objHeight, zBack + objToWallDistance),
 					   Vector3(Mathf.Min(xRight, xRight + mRight * objToWallDistance), objOriginY + 1.5 * objHeight, zBack + objToWallDistance)];
 			
 			}else{
 				shadowMeshV.vertices = 
 					[Vector3(Mathf.Min(xRight, xRight + mRight * objToWallDistance), yFloor, zBack + objToWallDistance),
-					   Vector3(xLeft + objWidth/2 - mLeft * objToWallDistance, yFloor, zBack + objToWallDistance),
-					   Vector3(xLeft + objWidth/2 - mLeft * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance),
+					   Vector3(xLeft + objWidth - mLeft * objToWallDistance, yFloor, zBack + objToWallDistance),
+					   Vector3(xLeft + objWidth - mLeft * objToWallDistance, yFloor + objHeight, zBack + objToWallDistance),
 					   Vector3(Mathf.Min(xRight, xRight + mRight * objToWallDistance), yFloor + objHeight, zBack + objToWallDistance)];
 				
 				shadowMeshH.vertices = 
 					[Vector3(Mathf.Min(xRight, xRight + mRight * objToWallDistance), yFloor, zBack + objToWallDistance),
-					   Vector3(xLeft + objWidth/2 - mLeft * objToWallDistance, yFloor, zBack + objToWallDistance),
+					   Vector3(xLeft + objWidth - mLeft * objToWallDistance, yFloor, zBack + objToWallDistance),
 					   Vector3(xLeft, yFloor, zFront),
 					   Vector3(xRight, yFloor, zFront)];
 			}
