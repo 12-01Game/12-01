@@ -511,7 +511,10 @@ function castShadow(x: float, z: float){
 	
 	var w =  newRight - newLeft;
 	colliderV.size = Vector3(w, shadowDepth, shadowDepth);
-	colliderV.center = Vector3(newRight - w/2, yFloor + objHeight - shadowDepth/2, newBack);
+	if(isLifted)
+		colliderV.center = Vector3(newRight - w/2, objOriginY + 1.5 * objHeight - shadowDepth/2, newBack);
+	else
+		colliderV.center = Vector3(newRight - w/2, yFloor + objHeight - shadowDepth/2, newBack);
 }
 
 /*
